@@ -1,3 +1,6 @@
+import "react-native-gesture-handler";
+// https://reactnavigation.org/docs/drawer-navigator
+// 위의 링크에서 보면... 위와 같이 라이브러리를 import 하면 좋다고 되어있다.
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import * as Font from "expo-font";

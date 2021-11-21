@@ -35,7 +35,11 @@ const styles = StyleSheet.create({
     margin: 15,
     height: 150,
     borderRadius: 10,
-    overflow: "hidden", //child items 가 밖으로 나오는것을 막기 위한 처리
+    overflow:
+      Platform.OS === "android" && Platform.Version >= 21
+        ? "hidden" // overflow 의 hidden 은 child items 가 밖으로 나오는것을 막기 위한 처리
+        : "visible",
+    elevation: 5,
   },
   container: {
     flex: 1,
@@ -44,7 +48,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.26,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 10,
-    elevation: 3,
     padding: 15,
     justifyContent: "flex-end",
     alignItems: "flex-end",

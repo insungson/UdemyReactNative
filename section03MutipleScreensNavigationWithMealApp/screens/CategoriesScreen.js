@@ -27,9 +27,30 @@ import {
 import { CATEGORIES } from "../data/dummy-data";
 import CategoryGridTile from "../components/CategoryGridTile";
 
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
+import HeaderButton from "../components/HeaderButton";
+// https://www.npmjs.com/package/react-navigation-header-buttons
+// 위의 해더버튼 라이브러릴는 위의 링크를 확인하여 속성들을 확인하면 된다.
+
+// https://reactnavigation.org/docs/header-buttons
+// 위의 링크는 헤더의 버튼을 처리해주는 소스 링크이다.
 export default CategoriesScreen = ({ navigation }) => {
   useLayoutEffect(() => {
-    navigation.setOptions({ title: "Meals Categories" });
+    navigation.setOptions({
+      title: "Meals Categories",
+      headerLeft: (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Menu"
+            iconName="ios-menu"
+            onPress={() => {
+              navigation.toggleDrawer();
+              // navigation/MealsNavigator.js 에서 여러 navigator를 겹쳤는데 이게 먹히는지.. 확인해보자
+            }}
+          />
+        </HeaderButtons>
+      ),
+    });
   }, [navigation]);
 
   const renderGridItem = (itemData) => {
