@@ -159,7 +159,7 @@ const FilterNavigator = () => {
 const DrawerNavigator = () => {
   const Drawer = createDrawerNavigator();
   let showTabBar =
-    Platform.OS === "android" ? <MatrialTabNavigator /> : <TabNavigator />;
+    Platform.OS === "android" ? MatrialTabNavigator : TabNavigator;
   // 위처럼 모바일 기기별로 분기처리하여 처리할 수 도 있다.
 
   return (
@@ -169,6 +169,7 @@ const DrawerNavigator = () => {
         drawerLabelStyle: {
           fontFamily: "open-sans-bold",
         },
+        headerShown: false, // 이걸 안해주면.. 헤더가 뜨기 때문에 해당 컴포넌트에서의 헤더와 더불어 2개의 헤더가 뜨게 된다
       }}
     >
       <Drawer.Screen
@@ -182,5 +183,5 @@ const DrawerNavigator = () => {
 };
 
 export default MainNavigatorTab = () => {
-  return <NavigationContainer>{DrawerNavigator}</NavigationContainer>;
+  return <NavigationContainer>{DrawerNavigator()}</NavigationContainer>;
 };

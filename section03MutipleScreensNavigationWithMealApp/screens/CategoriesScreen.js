@@ -35,10 +35,34 @@ import HeaderButton from "../components/HeaderButton";
 // https://reactnavigation.org/docs/header-buttons
 // 위의 링크는 헤더의 버튼을 처리해주는 소스 링크이다.
 export default CategoriesScreen = ({ navigation }) => {
+  // console.log("navigation: ", navigation);
+  // // 위의 콘솔은 아래와 같이 잘 나온다
+  // // navigation:  Object {
+  // //   "addListener": [Function addListener],
+  // //   "canGoBack": [Function canGoBack],
+  // //   "closeDrawer": [Function anonymous],
+  // //   "dispatch": [Function dispatch],
+  // //   "getParent": [Function getParent],
+  // //   "getState": [Function anonymous],
+  // //   "goBack": [Function anonymous],
+  // //   "isFocused": [Function isFocused],
+  // //   "jumpTo": [Function anonymous],
+  // //   "navigate": [Function anonymous],
+  // //   "openDrawer": [Function anonymous],
+  // //   "pop": [Function anonymous],
+  // //   "popToTop": [Function anonymous],
+  // //   "push": [Function anonymous],
+  // //   "removeListener": [Function removeListener],
+  // //   "replace": [Function anonymous],
+  // //   "reset": [Function anonymous],
+  // //   "setOptions": [Function setOptions],
+  // //   "setParams": [Function anonymous],
+  // //   "toggleDrawer": [Function anonymous],
+  // // }
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "Meals Categories",
-      headerLeft: (
+      headerLeft: () => (
         <HeaderButtons HeaderButtonComponent={HeaderButton}>
           <Item
             title="Menu"
