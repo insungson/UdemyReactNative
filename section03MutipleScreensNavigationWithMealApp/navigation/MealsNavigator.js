@@ -127,7 +127,7 @@ const MatrialTabNavigator = () => {
             <Text style={{ fontFamily: "open-sans-bold" }}>Meals</Text>
           ), //이렇게 처리해도 된다..;; 기존엔 그냥 'Meals' 로 처리했다.
           tabBarIcon: ({ focused, color }) => (
-            <MaterialIcons name="favorite" size={25} color={color} />
+            <MaterialIcons name="restaurant" size={25} color={color} />
           ),
           tabBarColor: Colors.primaryColor, // 이 옵션으로 탭의 칼러를 바꿀 수 있다.
         }}

@@ -5,6 +5,8 @@ import React, {
   useCallback,
 } from "react";
 import { View, Text, StyleSheet, Switch, Platform } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { setFilters } from "../store/actions/meals";
 
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import HeaderButton from "../components/HeaderButton";
@@ -30,18 +32,26 @@ const FilterSwitch = ({ label, state, onChange }) => {
 
 export default FiltersScreen = ({
   navigation,
-  route: {
-    params: { save },
-  },
+  // route: {
+  //   params: { save },
+  // },
 }) => {
-  const [isGlutenFree, setIsGlutenFree] = useState(false);
-  const [isLactoseFree, setIsLactoseFree] = useState(false);
-  const [isVegan, setIsVegan] = useState(false);
-  const [isVegetarian, setIsVegetarian] = useState(false);
+  const filterOPtions = useSelector((state) => state.meals.filterOptions);
 
-  useEffect(() => {
-    console.log("save: ", save);
-  }, [save]);
+  const [isGlutenFree, setIsGlutenFree] = useState(
+    filterOPtions !== null ? filterOPtions?.glutenFree : false
+  );
+  const [isLactoseFree, setIsLactoseFree] = useState(
+    filterOPtions !== null ? filterOPtions?.lactoseFree : false
+  );
+  const [isVegan, setIsVegan] = useState(
+    filterOPtions !== null ? filterOPtions?.vegan : false
+  );
+  const [isVegetarian, setIsVegetarian] = useState(
+    filterOPtions !== null ? filterOPtions?.isVegetarian : false
+  );
+
+  const dispatch = useDispatch();
 
   // useCallback 의 사용이유!
   // 자바스크립트에서 함수는 객체이다.
@@ -50,6 +60,13 @@ export default FiltersScreen = ({
   // useCallback 은 내부 함수를 Wrapping 처리하여 재실행을 막아준다.
   // 내부 함수는 오직 dependency의 값이 변할 때만  재실행이 된다!!
   const saveFilters = useCallback(() => {
+    console.log(
+      "isGlutenFree, isLactoseFree, isVegan, isVegetarian: ",
+      isGlutenFree,
+      isLactoseFree,
+      isVegan,
+      isVegetarian
+    );
     const appliedFilters = {
       glutenFree: isGlutenFree,
       lactoseFree: isLactoseFree,
@@ -57,18 +74,20 @@ export default FiltersScreen = ({
       isVegetarian: isVegetarian,
     };
     console.log("appliedFilters: ", appliedFilters);
-    return appliedFilters;
-  }, [isGlutenFree, isLactoseFree, isVegan, isVegetarian]);
 
-  useEffect(() => {
-    console.log("saveFilters: ", saveFilters());
-    navigation.setParams({ save: saveFilters() });
-    // https://reactnavigation.org/docs/navigation-prop
-    // https://reactnavigation.org/docs/navigation-prop#setparams
-    // setParams 는 라우터의 params를 바꿔준다.(기존의 params 는 합쳐지게 된다)
-  }, [saveFilters]);
-  // navigation 를 dependency 에 넣지 않는 이유는.. navigation.setParams() 를 실행시
-  // navigation 가 변하게 되고 다시 dependency 의 navigation가 싫행되기 때문에 무한루프가 일어난다.
+    dispatch(setFilters(appliedFilters));
+    // return appliedFilters;
+  }, [isGlutenFree, isLactoseFree, isVegan, isVegetarian, dispatch]);
+
+  // useEffect(() => {
+  //   console.log("saveFilters: ", saveFilters());
+  //   navigation.setParams({ save: saveFilters() });
+  //   // https://reactnavigation.org/docs/navigation-prop
+  //   // https://reactnavigation.org/docs/navigation-prop#setparams
+  //   // setParams 는 라우터의 params를 바꿔준다.(기존의 params 는 합쳐지게 된다)
+  // }, [saveFilters]);
+  // // navigation 를 dependency 에 넣지 않는 이유는.. navigation.setParams() 를 실행시
+  // // navigation 가 변하게 되고 다시 dependency 의 navigation가 싫행되기 때문에 무한루프가 일어난다.
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -90,7 +109,7 @@ export default FiltersScreen = ({
         </HeaderButtons>
       ),
     });
-  }, [navigation]);
+  }, [navigation, saveFilters]);
 
   return (
     <View style={styles.screen}>

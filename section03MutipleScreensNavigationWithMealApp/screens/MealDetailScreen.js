@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   Image,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleFavorite } from "../store/actions/meals";
 
 // 커스텀하게 해더를 만들어도 상관없지만.. (2단원에서 한것처럼..)
 // 여기선 쉽게처리하기 위해 라이브러리를 사용해보자 (아래 링크는 react navigation 에서 추천한 헤더버튼라이브러리)
@@ -33,7 +35,17 @@ export default MealDetailScreen = ({
     params: { mealId },
   },
 }) => {
-  const selectedMeal = MEALS.find((meal) => meal.id === mealId);
+  const currentMealIsFavorite = useSelector((state) =>
+    state.meals.favoriteMeals.some((meal) => meal.id === mealId)
+  );
+  const availableMeals = useSelector((state) => state.meals.meals);
+  const selectedMeal = availableMeals.find((meal) => meal.id === mealId);
+
+  const dispatch = useDispatch();
+
+  const toggleFavoriteHandler = useCallback(() => {
+    dispatch(toggleFavorite(mealId));
+  }, [dispatch, mealId]);
 
   // 헤더의 버튼 설정도 여기서 확인하면 된다.
   // https://reactnavigation.org/docs/header-buttons
@@ -48,17 +60,15 @@ export default MealDetailScreen = ({
         아래의 속성처럼 넣으면 되고, 사용법은 해당 라이브러리의 링크에서 확인해보자! */}
           <Item
             title="Favorite"
-            iconName="ios-star"
-            onPress={() => {
-              console.log("Mark as favorite!");
-            }}
+            iconName={currentMealIsFavorite ? "ios-star" : "ios-star-outline"}
+            onPress={toggleFavoriteHandler}
           />
           {/* 위의 해당 아이콘은 https://icons.expo.fyi/  요기서 찾는다 */}
           {/* 참고로 OverflowMenu 도 있는데 이건 버튼(클릭시) -> 버튼 이 나오는 버튼이다. */}
         </HeaderButtons>
       ),
     });
-  }, [navigation, selectedMeal]);
+  }, [navigation, selectedMeal, currentMealIsFavorite, toggleFavoriteHandler]);
 
   return (
     // <View style={styles.screen}>

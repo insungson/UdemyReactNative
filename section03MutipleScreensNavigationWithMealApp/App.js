@@ -5,6 +5,8 @@ import React, { useState } from "react";
 import { Text, View } from "react-native";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
+import { createStore, combineReducers } from "redux";
+import { Provider } from "react-redux";
 import { enableScreens } from "react-native-screens";
 // react-native-screens 는 Native 의 시스템 환경에서 좀더 최적화 하여 screen이 동작하게 도와준다!!
 // (일반적인 View 보단 좀더 Native 에 가까운 screen(화면)을 제공하여 시스템의 최적화에 더 도움이 된다)
@@ -16,6 +18,14 @@ import { enableScreens } from "react-native-screens";
 enableScreens();
 
 import MealsNavigator from "./navigation/MealsNavigator";
+
+import mealsReducer from "./store/reducers/meals";
+
+const rootReducer = combineReducers({
+  meals: mealsReducer,
+});
+
+const store = createStore(rootReducer);
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -37,7 +47,11 @@ export default function App() {
     );
   }
 
-  return <MealsNavigator />;
+  return (
+    <Provider store={store}>
+      <MealsNavigator />
+    </Provider>
+  );
 }
 
 // reactNavigator 의 기본인 아래의 링크
