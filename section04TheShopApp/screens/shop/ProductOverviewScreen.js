@@ -5,7 +5,7 @@ import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 import HeaderButton from "../../components/UI/HeaderButton";
 import ProductItem from "../../components/shop/ProductItem";
-import { cartAction } from "../../store/cart-slice";
+import { addToCart } from "../../store/cart-slice";
 
 import Colors from "../../constants/Colors";
 
@@ -75,7 +75,8 @@ export default ProductsOverviewScreen = ({ navigation, route: { params } }) => {
             color={Colors.primary}
             title="To Cart"
             onPress={() => {
-              dispatch(cartAction.addToCart(itemData.item));
+              console.log("itemData.item: ", itemData.item);
+              dispatch(addToCart({ product: itemData.item }));
             }}
           />
         </ProductItem>

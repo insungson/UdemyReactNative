@@ -9,6 +9,9 @@ import Colors from "../constants/Colors";
 
 import ProductOverviewScreen from "../screens/shop/ProductOverviewScreen";
 import ProductDetailScreen from "../screens/shop/ProductDetailScreen";
+import CartScreen from "../screens/shop/CartScreen";
+
+import OrderScreen from "../screens/shop/OrderScreen";
 
 const defaultStackNavOptions = {
   headerStyle: {
@@ -30,6 +33,17 @@ const ProductsNavigator = () => {
     <Stack.Navigator screenOptions={defaultStackNavOptions}>
       <Stack.Screen name="ProductsOverview" component={ProductOverviewScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const OrderNavigator = () => {
+  const Stack = createStackNavigator();
+
+  return (
+    <Stack.Navigator screenOptions={defaultStackNavOptions}>
+      <Stack.Screen name="Orders" component={OrderScreen} />
     </Stack.Navigator>
   );
 };
@@ -54,6 +68,19 @@ const ShopDrawerNavigator = () => {
           drawerIcon: ({ color, size, focused }) => (
             <Ionicons
               name={Platform.OS === "android" ? "md-cart" : "ios-cart"}
+              size={23}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Orders"
+        component={OrderNavigator}
+        options={{
+          drawerIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={Platform.OS === "android" ? "md-list" : "ios-list"}
               size={23}
               color={color}
             />
