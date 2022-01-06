@@ -36,11 +36,12 @@ const productSlice = createSlice({
         description,
         state.userProducts[productIndex].price
       );
+      console.log("state.availableProducts: ", state.availableProducts);
       const availableProductIndex = state.availableProducts.findIndex(
         (prod) => prod.id === id
       );
-
-      state.userProducts = state.userProducts[productIndex] = updatedProduct;
+      console.log("availableProductIndex: ", availableProductIndex);
+      state.userProducts[productIndex] = updatedProduct;
       state.availableProducts = state.availableProducts[availableProductIndex] =
         updatedProduct;
     },

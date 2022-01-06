@@ -18,6 +18,7 @@ const EditProductScreen = ({
     params: { productId },
   },
 }) => {
+  console.log("에러라면 이게 찍혀야함");
   const editedProduct = useSelector((state) =>
     state.products.userProducts.find((prod) => prod.id === productId)
   );
@@ -33,6 +34,7 @@ const EditProductScreen = ({
   );
 
   const submitHandler = useCallback(() => {
+    console.log("editedProduct: ", editedProduct);
     if (editedProduct) {
       dispatch(
         updateProduct({
@@ -52,8 +54,18 @@ const EditProductScreen = ({
         })
       );
     }
-    navigation.goBack();
-  }, [dispatch, productId, title, description, imageUrl, price, editedProduct]);
+    // navigation.goBack();
+    navigation.navigate("UserProducts");
+  }, [
+    navigation,
+    dispatch,
+    productId,
+    title,
+    description,
+    imageUrl,
+    price,
+    editedProduct,
+  ]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -88,7 +100,7 @@ const EditProductScreen = ({
           <TextInput
             style={styles.input}
             value={imageUrl}
-            onChangeText={(text) => setImageURL(text)}
+            onChangeText={(text) => setImageUrl(text)}
           />
         </View>
         <View style={styles.formControl}>
@@ -99,14 +111,16 @@ const EditProductScreen = ({
             onChangeText={(text) => setDescription(text)}
           />
         </View>
-        <View style={styles.formControl}>
-          <Text style={styles.label}>Price</Text>
-          <TextInput
-            style={styles.input}
-            value={price}
-            onChangeText={(text) => setPrice(text)}
-          />
-        </View>
+        {editedProduct ? null : (
+          <View style={styles.formControl}>
+            <Text style={styles.label}>Price</Text>
+            <TextInput
+              style={styles.input}
+              value={price}
+              onChangeText={(text) => setPrice(text)}
+            />
+          </View>
+        )}
       </View>
     </ScrollView>
   );

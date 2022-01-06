@@ -10,6 +10,7 @@ import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 const UserProductsScreen = ({ navigation, route: { params } }) => {
   const userProducts = useSelector((state) => state.products.userProducts);
+  console.log("userProducts22: ", userProducts);
   const dispatch = useDispatch();
 
   useLayoutEffect(() => {
@@ -32,7 +33,7 @@ const UserProductsScreen = ({ navigation, route: { params } }) => {
             title="Add"
             iconName={Platform.OS === "android" ? "md-create" : "ios-create"}
             onPress={() => {
-              navigation.navigate("EditProduct");
+              navigation.navigate("EditProduct", { productId: null });
             }}
           />
         </HeaderButtons>
@@ -80,7 +81,7 @@ const UserProductsScreen = ({ navigation, route: { params } }) => {
             color={Colors.primary}
             title="Edit"
             onPress={() => {
-              editProductHandler(itemData.itemd.id);
+              editProductHandler(itemData.item.id);
             }}
           />
           <Button
