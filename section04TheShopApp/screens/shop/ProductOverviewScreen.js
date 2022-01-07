@@ -9,7 +9,7 @@ import { addToCart } from "../../store/cart-slice";
 
 import Colors from "../../constants/Colors";
 
-export default ProductsOverviewScreen = ({ navigation, route: { params } }) => {
+const ProductsOverviewScreen = ({ navigation, route: { params } }) => {
   const products = useSelector((state) => state.products.availableProducts);
   const dispatch = useDispatch();
 
@@ -84,3 +84,5 @@ export default ProductsOverviewScreen = ({ navigation, route: { params } }) => {
     ></FlatList>
   );
 };
+
+export default ProductsOverviewScreen;

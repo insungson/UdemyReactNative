@@ -42,8 +42,7 @@ const productSlice = createSlice({
       );
       console.log("availableProductIndex: ", availableProductIndex);
       state.userProducts[productIndex] = updatedProduct;
-      state.availableProducts = state.availableProducts[availableProductIndex] =
-        updatedProduct;
+      state.availableProducts[availableProductIndex] = updatedProduct;
     },
     deleteProduct: (state, action) => {
       const { id } = action.payload;

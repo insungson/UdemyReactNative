@@ -54,8 +54,8 @@ const EditProductScreen = ({
         })
       );
     }
-    // navigation.goBack();
-    navigation.navigate("UserProducts");
+    navigation.goBack();
+    // navigation.navigate("UserProducts");
   }, [
     navigation,
     dispatch,
