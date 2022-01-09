@@ -1,4 +1,9 @@
-import React, { useLayoutEffect, useState, useCallback } from "react";
+import React, {
+  useLayoutEffect,
+  useState,
+  useCallback,
+  useReducer,
+} from "react";
 import {
   View,
   ScrollView,
@@ -6,11 +11,42 @@ import {
   TextInput,
   StyleSheet,
   Platform,
+  Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import { useSelector, useDispatch } from "react-redux";
 import HeaderButton from "../../components/UI/HeaderButton";
 import { updateProduct, createProduct } from "../../store/products-slice";
+
+import Input from "../../components/UI/Input";
+// 유효성 검사를 좀 더 세부적으로 처리하기 위한 커스텀 TextInput 컴포넌트를 만들었다.
+
+// input의 여러 state를 한번에 관리하기 위해 useReducer 를 사용해준다!!
+const FORM_INPUT_UPDATE = "FORM_INPUT_UPDATE";
+// 해당 컴포넌트 바깥쪽에서 useReducer 함수를 만들면 useCallback을 사용안해도 재실행을 막을 수 있다!!
+const formReducer = (state, action) => {
+  if (action.type === FORM_INPUT_UPDATE) {
+    const updatedValues = {
+      ...state.inputValues,
+      [action.input]: action.value,
+    };
+    const updatedValidities = {
+      ...state.inputValidities,
+      [action.input]: action.isValid,
+    };
+    let updatedFormIsvalid = true;
+    for (const key in updatedValidities) {
+      updatedFormIsvalid = updatedFormIsvalid && updatedValidities[key];
+    }
+    return {
+      formIsValid: updatedFormIsvalid,
+      inputValidities: updatedValidities,
+      inputValues: updatedValues,
+    };
+  }
+  return state;
+};
 
 const EditProductScreen = ({
   navigation,
@@ -24,6 +60,24 @@ const EditProductScreen = ({
   );
   const dispatch = useDispatch();
 
+  // 유효성 검사를 위한 input element의 state와 validation과 전체 form의 validation을 위해 useReducer를 사용한다
+  // https://www.npmjs.com/package/formik     form 라이브러리를 사용하면 유효성검사를 쉽게 사용할 수 있다.(reactNative 에서 사용 가능하다)
+  const [formState, dispatchFormState] = useReducer(formReducer, {
+    inputValues: {
+      title: editedProduct ? editedProduct.title : "",
+      imageUrl: editedProduct ? editedProduct.imageUrl : "",
+      description: editedProduct ? editedProduct.description : "",
+      price: "",
+    },
+    inputValidities: {
+      title: editedProduct ? true : false,
+      imageUrl: editedProduct ? true : false,
+      description: editedProduct ? true : false,
+      price: editedProduct ? true : false,
+    },
+    formIsValid: editedProduct ? true : false,
+  });
+
   const [title, setTitle] = useState(editedProduct ? editedProduct.title : "");
   const [imageUrl, setImageUrl] = useState(
     editedProduct ? editedProduct.imageUrl : ""
@@ -35,24 +89,46 @@ const EditProductScreen = ({
 
   const submitHandler = useCallback(() => {
     console.log("editedProduct: ", editedProduct);
+    if (!formState.formIsValid) {
+      Alert.alert("Wrong input!", "Please check the errors in the form,", [
+        { text: "Okay" },
+      ]);
+      return;
+    }
     if (editedProduct) {
       dispatch(
         updateProduct({
           id: productId,
-          title: title,
-          imageUrl: imageUrl,
-          description: description,
+          title: formState.inputValues.title,
+          imageUrl: formState.inputValues.imageUrl,
+          description: formState.inputValues.description,
         })
-      );
+      ); // 기존의 state를 useReducer로 바꿔준다.
+      // dispatch(
+      //   updateProduct({
+      //     id: productId,
+      //     title: title,
+      //     imageUrl: imageUrl,
+      //     description: description,
+      //   })
+      // );
     } else {
       dispatch(
         createProduct({
-          title: title,
-          imageUrl: imageUrl,
-          description: description,
-          price: price,
+          title: formState.inputValues.title,
+          imageUrl: formState.inputValues.imageUrl,
+          description: formState.inputValues.description,
+          price: formState.inputValues.price,
         })
       );
+      // dispatch(
+      //   createProduct({
+      //     title: title,
+      //     imageUrl: imageUrl,
+      //     description: description,
+      //     price: price,
+      //   })
+      // );
     }
     navigation.goBack();
     // navigation.navigate("UserProducts");
@@ -60,12 +136,14 @@ const EditProductScreen = ({
     navigation,
     dispatch,
     productId,
-    title,
-    description,
-    imageUrl,
-    price,
+    // title,
+    // description,
+    // imageUrl,
+    // price,
     editedProduct,
+    formState,
   ]);
+  // 기존의 useState보다 useReducer를 사용할때 dependency도 간단해진다!
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -84,10 +162,34 @@ const EditProductScreen = ({
     });
   }, [navigation, submitHandler]);
 
+  // 아래와 같이 input element 에 들어가는 값에 대한 유효성 검사를 할 수 있는 함수를 만들 수 있다.
+  const inputChangeHandler = useCallback(
+    (inputIdentifier, inputValue, inputValidity) => {
+      dispatchFormState({
+        type: FORM_INPUT_UPDATE,
+        value: inputValue,
+        isValid: inputValidity,
+        input: inputIdentifier,
+      });
+    },
+    [dispatchFormState]
+  );
+
   return (
-    <ScrollView>
-      <View style={styles.form}>
-        <View style={styles.formControl}>
+    <KeyboardAvoidingView // 키보드 가 현재 화면의 Description input element 를 가리기 때문에 이렇게 처리해준다
+      style={{ flex: 1 }}
+      behavior="padding"
+      keyboardVerticalOffset={100} // 본인의 스크린 사이즈에 맞게 처리해준다.
+    >
+      <ScrollView>
+        <View style={styles.form}>
+          <Input
+            id="title"
+            label="Title"
+            errorText="Please enter a valid title!"
+            keyboardType="default"
+          />
+          {/* <View style={styles.formControl}>
           <Text style={styles.label}>Title</Text>
           <TextInput
             style={styles.input}
@@ -120,9 +222,10 @@ const EditProductScreen = ({
               onChangeText={(text) => setPrice(text)}
             />
           </View>
-        )}
-      </View>
-    </ScrollView>
+        )} */}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
