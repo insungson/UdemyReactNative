@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-redux";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 
 const INPUT_CHANGE = "INPUT_CHANGE";
 const INPUT_BLUR = "INPUT_BLUR";
@@ -105,7 +105,9 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontFamily: "open-sans",
-    colot: "red",
+    color: "red",
     fontSize: 13,
   },
 });
+
+export default Input;

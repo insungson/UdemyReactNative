@@ -188,6 +188,53 @@ const EditProductScreen = ({
             label="Title"
             errorText="Please enter a valid title!"
             keyboardType="default"
+            autoCapitalize="sentences"
+            autoCorrect
+            returnKeyType="next"
+            onInputChange={inputChangeHandler} // 커스텀하게 만든 Input 컴포넌트에서 사용할 state 변경 함수
+            // 기존의 inputChangeHandler.bind(this, 'title') 은 리랜더링을 많이 일으키기 때문에..  useCallback을 사용하고
+            // 하위 컴포넌트에서 input 값을 받아 처리해준다!!
+            initialValue={editedProduct ? editedProduct.title : ""}
+            initallyValid={!!editedProduct}
+            required
+          />
+          <Input
+            id="imageUrl"
+            label="Image Url"
+            errorText="Please enter a valid image url!"
+            keyboardType="default"
+            returnKeyType="next"
+            onInputChange={inputChangeHandler}
+            initialValue={editedProduct ? editedProduct.imageUrl : ""}
+            initiallyValid={!!editedProduct}
+            required
+          />
+          {editedProduct ? null : (
+            <Input
+              id="price"
+              label="Price"
+              errorText="Please enter a valid price!"
+              keyboardType="decimal-pad"
+              returnKeyType="next"
+              onInputChange={inputChangeHandler}
+              required
+              min={0.1}
+            />
+          )}
+          <Input
+            id="description"
+            label="Description"
+            errorText="Please enter a valid description!"
+            keyboardType="default"
+            autoCapitalize="sentences"
+            autoCorrect
+            multiline
+            numberOfLines={3}
+            onInputChange={inputChangeHandler}
+            initialValue={editedProduct ? editedProduct.description : ""}
+            initiallyValid={!!editedProduct}
+            required
+            minLength={5}
           />
           {/* <View style={styles.formControl}>
           <Text style={styles.label}>Title</Text>
@@ -233,19 +280,19 @@ const styles = StyleSheet.create({
   form: {
     margin: 20,
   },
-  formControl: {
-    width: "100%",
-  },
-  label: {
-    fontFamily: "open-sans-bold",
-    marginVertical: 8,
-  },
-  input: {
-    paddingHorizontal: 2,
-    paddingVertical: 5,
-    borderBottomColor: "#ccc",
-    borderBottomWidth: 1,
-  },
+  // formControl: {
+  //   width: "100%",
+  // },
+  // label: {
+  //   fontFamily: "open-sans-bold",
+  //   marginVertical: 8,
+  // },
+  // input: {
+  //   paddingHorizontal: 2,
+  //   paddingVertical: 5,
+  //   borderBottomColor: "#ccc",
+  //   borderBottomWidth: 1,
+  // },
 });
 
 export default EditProductScreen;
