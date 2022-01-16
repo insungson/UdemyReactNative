@@ -17,7 +17,11 @@ import {
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import { useSelector, useDispatch } from "react-redux";
 import HeaderButton from "../../components/UI/HeaderButton";
-import { updateProduct, createProduct } from "../../store/products-slice";
+import {
+  updateProduct,
+  createProduct,
+  fetchCreateProduct,
+} from "../../store/products-slice";
 
 import Input from "../../components/UI/Input";
 // 유효성 검사를 좀 더 세부적으로 처리하기 위한 커스텀 TextInput 컴포넌트를 만들었다.
@@ -54,7 +58,7 @@ const EditProductScreen = ({
     params: { productId },
   },
 }) => {
-  console.log("에러라면 이게 찍혀야함");
+  // console.log("에러라면 이게 찍혀야함");
   const editedProduct = useSelector((state) =>
     state.products.userProducts.find((prod) => prod.id === productId)
   );
@@ -113,14 +117,14 @@ const EditProductScreen = ({
       //   })
       // );
     } else {
-      dispatch(
-        createProduct({
-          title: formState.inputValues.title,
-          imageUrl: formState.inputValues.imageUrl,
-          description: formState.inputValues.description,
-          price: formState.inputValues.price,
-        })
-      );
+      // dispatch(
+      //   createProduct({
+      //     title: formState.inputValues.title,
+      //     imageUrl: formState.inputValues.imageUrl,
+      //     description: formState.inputValues.description,
+      //     price: formState.inputValues.price,
+      //   })
+      // );
       // dispatch(
       //   createProduct({
       //     title: title,
@@ -129,6 +133,14 @@ const EditProductScreen = ({
       //     price: price,
       //   })
       // );
+      dispatch(
+        fetchCreateProduct({
+          title: formState.inputValues.title,
+          imageUrl: formState.inputValues.imageUrl,
+          description: formState.inputValues.description,
+          price: formState.inputValues.price,
+        })
+      );
     }
     navigation.goBack();
     // navigation.navigate("UserProducts");

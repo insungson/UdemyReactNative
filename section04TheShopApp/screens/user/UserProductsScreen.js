@@ -10,7 +10,7 @@ import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 const UserProductsScreen = ({ navigation, route: { params } }) => {
   const userProducts = useSelector((state) => state.products.userProducts);
-  console.log("userProducts22: ", userProducts);
+  // console.log("userProducts22: ", userProducts);
   const dispatch = useDispatch();
 
   useLayoutEffect(() => {
