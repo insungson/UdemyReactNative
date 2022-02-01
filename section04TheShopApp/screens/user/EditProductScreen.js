@@ -1,6 +1,7 @@
 import React, {
   useLayoutEffect,
   useState,
+  useEffect,
   useCallback,
   useReducer,
 } from "react";
@@ -13,6 +14,7 @@ import {
   Platform,
   Alert,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import { useSelector, useDispatch } from "react-redux";
@@ -21,7 +23,9 @@ import {
   updateProduct,
   createProduct,
   fetchCreateProduct,
+  fetchUpdateProducts,
 } from "../../store/products-slice";
+import Colors from "../../constants/Colors";
 
 import Input from "../../components/UI/Input";
 // 유효성 검사를 좀 더 세부적으로 처리하기 위한 커스텀 TextInput 컴포넌트를 만들었다.
@@ -64,6 +68,10 @@ const EditProductScreen = ({
   );
   const dispatch = useDispatch();
 
+  // 스피닝처리 및 에러처리를 위한 state
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   // 유효성 검사를 위한 input element의 state와 validation과 전체 form의 validation을 위해 useReducer를 사용한다
   // https://www.npmjs.com/package/formik     form 라이브러리를 사용하면 유효성검사를 쉽게 사용할 수 있다.(reactNative 에서 사용 가능하다)
   const [formState, dispatchFormState] = useReducer(formReducer, {
@@ -82,68 +90,98 @@ const EditProductScreen = ({
     formIsValid: editedProduct ? true : false,
   });
 
-  const [title, setTitle] = useState(editedProduct ? editedProduct.title : "");
-  const [imageUrl, setImageUrl] = useState(
-    editedProduct ? editedProduct.imageUrl : ""
-  );
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState(
-    editedProduct ? editedProduct.description : ""
-  );
+  // // 아래는 기존에 사용하던 state 들이다. (위의 useReducer 로 대체)
+  // const [title, setTitle] = useState(editedProduct ? editedProduct.title : "");
+  // const [imageUrl, setImageUrl] = useState(
+  //   editedProduct ? editedProduct.imageUrl : ""
+  // );
+  // const [price, setPrice] = useState("");
+  // const [description, setDescription] = useState(
+  //   editedProduct ? editedProduct.description : ""
+  // );
+  console.log("editedProduct: ", editedProduct);
 
-  const submitHandler = useCallback(() => {
-    console.log("editedProduct: ", editedProduct);
+  // 에러 발생시 Alert 띄우기
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Wrong input!", "Please check the errors in the form.", [
+        { text: "Okay" },
+      ]);
+      return;
+    }
+  }, [error]);
+
+  const submitHandler = useCallback(async () => {
     if (!formState.formIsValid) {
       Alert.alert("Wrong input!", "Please check the errors in the form,", [
         { text: "Okay" },
       ]);
       return;
     }
-    if (editedProduct) {
-      dispatch(
-        updateProduct({
-          id: productId,
-          title: formState.inputValues.title,
-          imageUrl: formState.inputValues.imageUrl,
-          description: formState.inputValues.description,
-        })
-      ); // 기존의 state를 useReducer로 바꿔준다.
-      // dispatch(
-      //   updateProduct({
-      //     id: productId,
-      //     title: title,
-      //     imageUrl: imageUrl,
-      //     description: description,
-      //   })
-      // );
-    } else {
-      // dispatch(
-      //   createProduct({
-      //     title: formState.inputValues.title,
-      //     imageUrl: formState.inputValues.imageUrl,
-      //     description: formState.inputValues.description,
-      //     price: formState.inputValues.price,
-      //   })
-      // );
-      // dispatch(
-      //   createProduct({
-      //     title: title,
-      //     imageUrl: imageUrl,
-      //     description: description,
-      //     price: price,
-      //   })
-      // );
-      dispatch(
-        fetchCreateProduct({
-          title: formState.inputValues.title,
-          imageUrl: formState.inputValues.imageUrl,
-          description: formState.inputValues.description,
-          price: formState.inputValues.price,
-        })
-      );
+
+    // 에러 및 스피닝 처리
+    setError(null);
+    setIsLoading(true);
+    try {
+      if (editedProduct) {
+        // dispatch( // 기존의 state를 useReducer로 바꿔준다.
+        //   updateProduct({
+        //     id: productId,
+        //     title: formState.inputValues.title,
+        //     imageUrl: formState.inputValues.imageUrl,
+        //     description: formState.inputValues.description,
+        //   })
+        // );
+        // dispatch( // 기존의 inputState로 처리한것..
+        //   updateProduct({
+        //     id: productId,
+        //     title: title,
+        //     imageUrl: imageUrl,
+        //     description: description,
+        //   })
+        // );
+        dispatch(
+          fetchUpdateProducts({
+            firebaseKey: editedProduct.firebaseKey,
+            id: editedProduct.id,
+            title: formState.inputValues.title,
+            imageUrl: formState.inputValues.imageUrl,
+            description: formState.inputValues.description,
+          })
+        );
+      } else {
+        // dispatch(
+        //   createProduct({ // 이 dispatch 는 reducer 를 사용할때
+        //     title: formState.inputValues.title,
+        //     imageUrl: formState.inputValues.imageUrl,
+        //     description: formState.inputValues.description,
+        //     price: formState.inputValues.price,
+        //   })
+        // );
+        // dispatch( // 이 dispatch 는 그냥 input State 를 사용할때
+        //   createProduct({
+        //     title: title,
+        //     imageUrl: imageUrl,
+        //     description: description,
+        //     price: price,
+        //   })
+        // );
+        dispatch(
+          fetchCreateProduct({
+            title: formState.inputValues.title,
+            imageUrl: formState.inputValues.imageUrl,
+            description: formState.inputValues.description,
+            price: formState.inputValues.price,
+          })
+        );
+      }
+      navigation.goBack();
+      // navigation.navigate("UserProducts");
+    } catch (error) {
+      setError(error.message);
     }
-    navigation.goBack();
-    // navigation.navigate("UserProducts");
+
+    setIsLoading(false);
   }, [
     navigation,
     dispatch,
@@ -186,6 +224,15 @@ const EditProductScreen = ({
     },
     [dispatchFormState]
   );
+
+  // 스피닝 처리
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView // 키보드 가 현재 화면의 Description input element 를 가리기 때문에 이렇게 처리해준다
@@ -291,6 +338,11 @@ const EditProductScreen = ({
 const styles = StyleSheet.create({
   form: {
     margin: 20,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignContent: "center",
   },
   // formControl: {
   //   width: "100%",

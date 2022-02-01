@@ -72,6 +72,7 @@ const Input = (props) => {
       <TextInput
         {...props} //기존의 TextInput 을 커스텀하게 사용하기 위한 처리
         style={styles.input}
+        value={inputState.value}
         onChangeText={textChangeHandler}
         onBlur={lostFocusHandler} // 다른 element 로 이동하여 focus 가 없어질때 유효성 체크 결과를 보여주기 위함이다.
         // onEndEditing={() => console.log('onEndEditing')} // 해당 element 를 벗어날때 동작한다
