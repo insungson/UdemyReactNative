@@ -16,6 +16,8 @@ import OrderScreen from "../screens/shop/OrderScreen";
 import EditProductScreen from "../screens/user/EditProductScreen";
 import UserProductsScreen from "../screens/user/UserProductsScreen";
 
+import AuthScreen from "../screens/user/AuthScreen";
+
 const defaultStackNavOptions = {
   headerStyle: {
     backgroundColor: Platform.OS === "android" ? Colors.primary : "",
@@ -118,6 +120,19 @@ const ShopDrawerNavigator = () => {
   );
 };
 
+// 예시 코드에선 createSwitchNavigator 를 사용하였지만.. V5 부터 해당 navigator는 없어졌다..
+// 그래서 아래와 같이 createStackNavigator 로 대체한다.
+const MainAuthNavigator = () => {
+  const Stack = createStackNavigator();
+
+  return (
+    <Stack.Navigator screenOptions={defaultStackNavOptions}>
+      <Stack.Screen name="Auth" component={AuthScreen} />
+      <Stack.Screen name="Shop" component={ShopDrawerNavigator} />
+    </Stack.Navigator>
+  );
+};
+
 export default MainNavigator = () => {
-  return <NavigationContainer>{ShopDrawerNavigator()}</NavigationContainer>;
+  return <NavigationContainer>{MainAuthNavigator()}</NavigationContainer>;
 };
