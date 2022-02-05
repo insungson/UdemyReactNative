@@ -25,6 +25,7 @@ import Colors from "../../constants/Colors";
 
 const ProductsOverviewScreen = ({ navigation, route: { params } }) => {
   const products = useSelector((state) => state.products.availableProducts);
+  const { token, userId } = useSelector(({ auth }) => auth);
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -42,12 +43,12 @@ const ProductsOverviewScreen = ({ navigation, route: { params } }) => {
     setError(null);
     setIsRefreshing(true); // 요청 전후로 refreshing 처리를 해주자!!
     try {
-      await dispatch(fetchProducts());
+      await dispatch(fetchProducts({ userId }));
     } catch (error) {
       setError(error);
     }
     setIsRefreshing(false);
-  }, [dispatch, setError, setIsRefreshing]);
+  }, [dispatch, setError, setIsRefreshing, userId]);
 
   // 아래의 useEffect 는 네비게이션의 이벤트를 이용하여 데이터를 요청하는 로직을 짜본다!! (focus, blur 만 동작하는듯하다...)
   // didFocus : 페이지가 focused 되어질때의 이벤트시 콜백 함수이다.

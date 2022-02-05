@@ -18,8 +18,15 @@ export const fetchSignUp = createAsyncThunk(
     );
     if (response.status === 200) {
       console.log("(response: ", response.data);
+      const { idToken, localId } = response.data;
+      // 회원가입 시 token, localId 넣어줌!
+      return { token: idToken, userId: localId };
     } else {
-      throw new Error(response.statusText);
+      let message = "Something went wrong!";
+      if (errorId === "EMAIL_EXISTS") {
+        message = "This email exists already!";
+      }
+      throw new Error(`${response.statusText} ${message}`);
     }
   }
 );
@@ -35,6 +42,8 @@ export const fetchSignIn = createAsyncThunk(
     );
     if (response.status === 200) {
       console.log("response: ", response.data);
+      const { idToken, localId } = response.data;
+      return { token: idToken, userId: localId };
     } else {
       const errorResData = response.data;
       const errorId = errorResData.error.message;
@@ -51,6 +60,55 @@ export const fetchSignIn = createAsyncThunk(
   }
 );
 
-// const authSlice = createSlice();
+const authSlice = createSlice({
+  name: "auth",
+  initialState: {
+    token: null,
+    userId: null,
+  },
+  reducers: {},
+  extraReducers: {
+    //// 회원가입!
+    [fetchSignUp.pending.type]: (
+      state,
+      { type, meta: { requestId, arg } }
+    ) => {},
+    [fetchSignUp.pending.type]: (
+      state,
+      { payload, meta: { requestId, arg } }
+    ) => {
+      const { token, userId } = payload;
+      state.token = token;
+      state.userId = userId;
+    },
+    [fetchSignUp.pending.type]: (
+      state,
+      {
+        error: { code, message, name, stack },
+        meta: { requestId, arg, aborted, condition },
+      }
+    ) => {},
+    //// 로그인
+    [fetchSignIn.pending.type]: (
+      state,
+      { type, meta: { requestId, arg } }
+    ) => {},
+    [fetchSignIn.fulfilled.type]: (
+      state,
+      { payload, meta: { requestId, arg } }
+    ) => {
+      const { token, userId } = payload;
+      state.token = token;
+      state.userId = userId;
+    },
+    [fetchSignIn.rejected.type]: (
+      state,
+      {
+        error: { code, message, name, stack },
+        meta: { requestId, arg, aborted, condition },
+      }
+    ) => {},
+  },
+});
 
-// export default authSlice;
+export default authSlice;

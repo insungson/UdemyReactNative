@@ -43,12 +43,13 @@ const ProductsNavigator = () => {
   );
 };
 
+// "Orders" 가 2번들어갔기 떄문에 충돌? 같은 경고가 뜨긴하는데.. 나중에 이부분은 바꿔야 한다.
 const OrderNavigator = () => {
   const Stack = createStackNavigator();
 
   return (
     <Stack.Navigator screenOptions={defaultStackNavOptions}>
-      <Stack.Screen name="Orders" component={OrderScreen} />
+      <Stack.Screen name="Orderscreen" component={OrderScreen} />
     </Stack.Navigator>
   );
 };

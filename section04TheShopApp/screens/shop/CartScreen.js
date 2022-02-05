@@ -21,6 +21,7 @@ import { addOrder, fetchAddOrder } from "../../store/orders-slice";
 const CartScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
 
+  const { token, userId } = useSelector(({ auth }) => auth);
   const cartTotalAmount = useSelector((state) => state.cart.totalAmount);
   const cartItems = useSelector((state) => {
     const transformedCartItems = [];
@@ -44,11 +45,16 @@ const CartScreen = () => {
     // dispatch(addOrder({ items: cartItems, amount: cartTotalAmount })); // 기존 리듀서는 주석처리
     // 아래의 리듀서는 통신 관련 toolkit썽크
     await dispatch(
-      fetchAddOrder({ items: cartItems, amount: cartTotalAmount })
+      fetchAddOrder({
+        items: cartItems,
+        amount: cartTotalAmount,
+        token,
+        userId,
+      })
     );
     await dispatch(addOrderCart()); //기존의 리듀서처럼 공유가 안되기 때문에 따로 액션함수를 만들던지 여기에 그냥 추가작업을 해줘야 한다.
     setIsLoading(false);
-  }, [dispatch]);
+  }, [dispatch, token, userId]);
 
   return (
     <View style={styles.screen}>

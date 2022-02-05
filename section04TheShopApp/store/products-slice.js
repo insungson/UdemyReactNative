@@ -11,15 +11,15 @@ import Product from "../models/product";
 // 사용은 해당 페이지에서 dispatch(fetchCreateProduct(id, title, imageUrl, description));  이렇게 사용하면 된다!!
 export const fetchCreateProduct = createAsyncThunk(
   "fetchCreateProduct", // toolkit의 이름이다.
-  async ({ title, imageUrl, description, price }) => {
+  async ({ title, imageUrl, description, price, token, userId }) => {
     const id = new Date().toString();
     //fetch로 처리해도 상관없다.
     // const response = await axios.get(
     //   "https://react-http-text-default-rtdb.firebaseio.com/meals.json"
     // );
     const response = await axios.post(
-      "https://react-http-text-default-rtdb.firebaseio.com/reactNative/products.json",
-      { id, title, imageUrl, description, price }
+      `https://react-http-text-default-rtdb.firebaseio.com/reactNative/products.json?auth=${token}`,
+      { id, title, imageUrl, description, price, ownerId: userId }
     );
 
     if (response.status == 200) {
@@ -31,6 +31,7 @@ export const fetchCreateProduct = createAsyncThunk(
         description,
         price,
         name: response.data.name,
+        ownerId: userId,
       };
     } else {
       throw new Error(response.statusText);
@@ -40,24 +41,27 @@ export const fetchCreateProduct = createAsyncThunk(
 
 // 아래에서 try catch 문으로 발생한 에러를 프론트에서 dispatch로 가져오는 부분에서 찾을 수 있게 만든다.
 // axios 를 사용하면 통신에러를 컨트롤 할 수 있기 떄문에 굳이 try catch 문을 사용하지 않아도 된다.
-export const fetchProducts = createAsyncThunk("fetchProducts", async () => {
-  const response = await axios.get(
-    "https://react-http-text-default-rtdb.firebaseio.com/reactNative/products.json"
-  );
-  if (response.status === 200) {
-    return response.data;
-  } else {
-    throw new Error(response.statusText);
+export const fetchProducts = createAsyncThunk(
+  "fetchProducts",
+  async ({ userId }) => {
+    const response = await axios.get(
+      "https://react-http-text-default-rtdb.firebaseio.com/reactNative/products.json"
+    );
+    if (response.status === 200) {
+      return { data: response.data, ownerId: userId };
+    } else {
+      throw new Error(response.statusText);
+    }
   }
-});
+);
 
-// 업데이트 관련
+// 업데이트 관련  CRUD 중 R을 제외하고 나머진 모두 auth 요소를 넣어
 export const fetchUpdateProducts = createAsyncThunk(
   "fetchUpdateProducts",
-  async ({ firebaseKey, title, imageUrl, description, id }) => {
+  async ({ firebaseKey, title, imageUrl, description, id, token, userId }) => {
     const response = await axios.patch(
       // patch 는 업뎃이 된다!!
-      `https://react-http-text-default-rtdb.firebaseio.com/reactNative/products/${firebaseKey}.json`,
+      `https://react-http-text-default-rtdb.firebaseio.com/reactNative/products/${firebaseKey}.json?auth=${token}`,
       { title, imageUrl, description }
     );
     if (response.status === 200) {
@@ -73,9 +77,9 @@ export const fetchUpdateProducts = createAsyncThunk(
 // 삭제 관련
 export const fetchDeleteProduct = createAsyncThunk(
   "fetchDeleteProduct",
-  async ({ firebaseKey, id }) => {
+  async ({ firebaseKey, id, token }) => {
     const response = await axios.delete(
-      `https://react-http-text-default-rtdb.firebaseio.com/reactNative/products/${firebaseKey}.json`
+      `https://react-http-text-default-rtdb.firebaseio.com/reactNative/products/${firebaseKey}.json?auth=${token}`
     );
     if (response.status === 200) {
       console.log("response: ", response.data);
@@ -145,7 +149,8 @@ const productSlice = createSlice({
     [fetchCreateProduct.fulfilled.type]: (state, { payload, meta }) => {
       //fulfilled 일땐 payload가 fetchCreateProduct 의 리턴값이다.
       console.log("payload: ", payload);
-      const { id, title, imageUrl, description, price, name } = payload;
+      const { id, title, imageUrl, description, price, name, ownerId } =
+        payload;
       const newProduct = new Product(
         id,
         "u1",
@@ -157,10 +162,12 @@ const productSlice = createSlice({
       state.availableProducts = state.availableProducts.concat({
         ...newProduct,
         firebaseKey: name,
+        ownerId,
       });
       state.userProducts = state.userProducts.concat({
         ...newProduct,
         firebaseKey: name,
+        ownerId,
       });
     },
     [fetchCreateProduct.rejected.type]: (
@@ -180,7 +187,7 @@ const productSlice = createSlice({
     },
     [fetchProducts.fulfilled.type]: (state, { type, payload, meta }) => {
       console.log("fulfilledType: ", type); // fetchProducts/fulfilled 로 찍힌다!!
-      const data = payload;
+      const { data, ownerId } = payload;
       let getData = [];
       if (data) {
         let keys = Object.keys(data);
@@ -193,12 +200,16 @@ const productSlice = createSlice({
             data[key].description,
             data[key].price
           );
-          getData.push({ ...productObj, firebaseKey: key });
+          getData.push({
+            ...productObj,
+            firebaseKey: key,
+            ownerId: data[key].ownerId,
+          });
         });
 
         // data가 빈배열일땐 그대로 냅두고..
         if (getData.length > 0) {
-          //기존의 데이터와 id 를 비교해서 있을때만 추가해준다! (include 에 포함되지 않는것만 추가해주기)
+          //기존의 데이터(하드코드데이터)와 id 를 비교해서 있을때만 추가해준다! (include 에 포함되지 않는것만 추가해주기)
           const addData = getData.filter((resData) => {
             if (
               state.availableProducts.find((item) => item.id === resData.id)
@@ -218,7 +229,11 @@ const productSlice = createSlice({
             }
           });
 
-          state.userProducts = state.userProducts.concat(userProductData);
+          const filteredUserProducts = userProductData.filter(
+            (item) => item.ownerId === ownerId
+          );
+
+          state.userProducts = state.userProducts.concat(filteredUserProducts);
         }
       }
     },
@@ -240,14 +255,15 @@ const productSlice = createSlice({
     // @상품 업데이트 관련
     [fetchUpdateProducts.pending.type]: (state, { paylaod, meta }) => {},
     [fetchUpdateProducts.fulfilled.type]: (state, { payload, meta }) => {
-      const { firebaseKey, id, title, imageUrl, description } = payload;
+      const { firebaseKey, id, title, imageUrl, description, ownerId } =
+        payload;
       // userProduct 리듀서 업데이트
       const userProductIndex = state.userProducts.findIndex(
         (product) => product.id === id
       );
       const updatedProduct = new Product(
         id,
-        state.userProducts[userProductIndex].ownerId,
+        ownerId,
         title,
         imageUrl,
         description,

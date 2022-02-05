@@ -90,11 +90,12 @@ const AuthScreen = ({ navigation }) => {
     setIsLoading(true);
     try {
       await dispatch(action);
+      navigation.navigate("Shop"); // 로그인 성공시 shop(메인화면) 으로 넘겨준다
     } catch (error) {
-      setError(error);
+      setError(error.message);
+      setIsLoading(false); // 화면이 넘어가기 때문에 에러가 발생시만 로딩스피너를 꺼준다
     }
-    setIsLoading(false);
-  }, [formState, isSignUp]);
+  }, [formState, isSignUp, navigation]);
 
   const inputChangeHandler = useCallback(
     (inputIdentifier, inputValue, inputValidity) => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useCallback } from "react";
-import { FlatList, Button, Platform, Alert } from "react-native";
+import { FlatList, Button, Platform, Alert, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 import HeaderButton from "../../components/UI/HeaderButton";
@@ -14,6 +14,7 @@ import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 const UserProductsScreen = ({ navigation, route: { params } }) => {
   const userProducts = useSelector((state) => state.products.userProducts);
+  const { token, userId } = useSelector(({ auth }) => auth);
   // console.log("userProducts22: ", userProducts);
   const dispatch = useDispatch();
 
@@ -69,14 +70,22 @@ const UserProductsScreen = ({ navigation, route: { params } }) => {
           text: "Yes",
           style: "destructive",
           onPress: () => {
-            dispatch(fetchDeleteProduct({ id, firebaseKey }));
+            dispatch(fetchDeleteProduct({ id, firebaseKey, token }));
             // dispatch(deleteProduct({ id })); // 기존의 리듀서를 이용할때 사용!
           },
         },
       ]);
     },
-    [navigation]
+    [navigation, token]
   );
+
+  if (userProducts.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>No products found, maybe start creating some?</Text>
+      </View>
+    );
+  }
 
   return (
     <FlatList

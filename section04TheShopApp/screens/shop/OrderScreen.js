@@ -10,6 +10,7 @@ import {
   View,
   ActivityIndicator,
   StyleSheet,
+  Text,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
@@ -24,12 +25,16 @@ const OrederScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const orders = useSelector((state) => state.order.orders);
+  // 유저id 토큰을 queryString으로 보내기 위해 가져옮
+  const { token, userId } = useSelector(({ auth }) => auth);
   const dispatch = useDispatch();
 
   const requestOrderList = useCallback(async () => {
-    await dispatch(fetchOrders());
+    console.log("token: ", token);
+    console.log("userId: ", userId);
+    await dispatch(fetchOrders({ token, userId }));
     setIsLoading(false);
-  }, [dispatch]);
+  }, [dispatch, token, userId]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -57,6 +62,14 @@ const OrederScreen = ({ navigation }) => {
     <View style={styles.centered}>
       <ActivityIndicator size="large" color={Colors.primary} />
     </View>;
+  }
+
+  if (orders.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>No order found, maybe start ordering some products?</Text>
+      </View>
+    );
   }
 
   const renderOrderItem = (itemData) => {

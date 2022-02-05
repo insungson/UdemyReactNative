@@ -66,6 +66,7 @@ const EditProductScreen = ({
   const editedProduct = useSelector((state) =>
     state.products.userProducts.find((prod) => prod.id === productId)
   );
+  const { token, userId } = useSelector(({ auth }) => auth);
   const dispatch = useDispatch();
 
   // 스피닝처리 및 에러처리를 위한 state
@@ -147,6 +148,8 @@ const EditProductScreen = ({
             title: formState.inputValues.title,
             imageUrl: formState.inputValues.imageUrl,
             description: formState.inputValues.description,
+            token,
+            userId,
           })
         );
       } else {
@@ -172,6 +175,8 @@ const EditProductScreen = ({
             imageUrl: formState.inputValues.imageUrl,
             description: formState.inputValues.description,
             price: formState.inputValues.price,
+            token,
+            userId,
           })
         );
       }
@@ -192,6 +197,8 @@ const EditProductScreen = ({
     // price,
     editedProduct,
     formState,
+    token,
+    userId,
   ]);
   // 기존의 useState보다 useReducer를 사용할때 dependency도 간단해진다!
 
