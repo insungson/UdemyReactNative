@@ -69,7 +69,8 @@ const ProductsOverviewScreen = ({ navigation, route: { params } }) => {
     console.log("willFocus: ");
     return () => {
       console.log("willFocus:123123 ");
-      willFocusSub.remove();
+      // willFocusSub.remove(); // 위의 링크에서 확인해보니깐 remove 가 아닌 그냥 객체를 리턴해서 없애줘야 한다!!
+      return willFocusSub;
     };
   }, [navigation, loadProducts]);
 

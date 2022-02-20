@@ -153,7 +153,7 @@ const productSlice = createSlice({
         payload;
       const newProduct = new Product(
         id,
-        "u1",
+        ownerId,
         title,
         imageUrl,
         description,
@@ -194,7 +194,7 @@ const productSlice = createSlice({
         keys.forEach((key) => {
           const productObj = new Product(
             data[key].id,
-            "u1",
+            ownerId,
             data[key].title,
             data[key].imageUrl,
             data[key].description,
@@ -203,7 +203,6 @@ const productSlice = createSlice({
           getData.push({
             ...productObj,
             firebaseKey: key,
-            ownerId: data[key].ownerId,
           });
         });
 

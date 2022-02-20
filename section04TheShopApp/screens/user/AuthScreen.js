@@ -15,7 +15,7 @@ import {
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Input from "../../components/UI/Input";
 import Card from "../../components/UI/Card";
@@ -53,6 +53,7 @@ const AuthScreen = ({ navigation }) => {
   const [error, setError] = useState(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const dispatch = useDispatch();
+  const isAuth = useSelector(({ auth }) => !!auth.token);
 
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
@@ -72,6 +73,13 @@ const AuthScreen = ({ navigation }) => {
       Alert.alert("An Error Occurred!", error, [{ text: "Okay" }]);
     }
   }, [error]);
+
+  // 로그아웃 후 무한 스피닝을 없애기 위한 useEffect
+  useEffect(() => {
+    if (!isAuth) {
+      setIsLoading(false);
+    }
+  }, [isAuth]);
 
   const authHandler = useCallback(async () => {
     let action;
@@ -112,6 +120,7 @@ const AuthScreen = ({ navigation }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "Authenticate",
+      headerLeft: null, // 이걸 안하면 자동으로 뒤로가는 버튼이 생성된다...
     });
   }, [navigation]);
 

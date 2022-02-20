@@ -8,6 +8,7 @@ import { Provider } from "react-redux";
 import store from "./store";
 
 import ShopNavigator from "./navigation/ShopNavigator";
+import NavigationContainerForGlobalState from "./navigation/NavigatorContainerForGlobalState";
 
 enableScreens();
 
@@ -37,7 +38,8 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <ShopNavigator />
+      <NavigationContainerForGlobalState />
+      {/* <ShopNavigator /> */}
     </Provider>
   );
 }
